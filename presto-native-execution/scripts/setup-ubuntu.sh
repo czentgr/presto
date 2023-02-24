@@ -54,7 +54,7 @@ function install_antlr4 {
     mkdir antlr4-cpp-runtime-4.9.3-source && cd antlr4-cpp-runtime-4.9.3-source
     unzip ../antlr4-cpp-runtime-4.9.3-source.zip
     mkdir build && mkdir run && cd build
-    cmake .. && make "-j${NPROC}" install
+    cmake .. && sudo make "-j${NPROC}" install
 }
 
 function install_presto_deps {
