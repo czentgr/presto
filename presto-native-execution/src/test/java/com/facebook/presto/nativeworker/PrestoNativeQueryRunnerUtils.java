@@ -99,6 +99,11 @@ public class PrestoNativeQueryRunnerUtils
     }
 
     public static QueryRunner createJavaQueryRunner(Optional<Path> baseDataDirectory, String security, String storageFormat)
+            throws Exception {
+        return createJavaQueryRunner(dataDirectory, security, storageFormat, true);
+    }
+
+    public static QueryRunner createJavaQueryRunner(Optional<Path> dataDirectory, String security, String storageFormat, boolean createTpchTables)
             throws Exception
     {
         Optional<Path> dataDirectory = baseDataDirectory.map(path -> Paths.get(path.toString() + '/' + storageFormat));
@@ -114,6 +119,26 @@ public class PrestoNativeQueryRunnerUtils
                                 "hive.storage-format", storageFormat,
                                 "hive.pushdown-filter-enabled", "true"),
                         dataDirectory);
+
+        if (createTpchTables) {
+            // DWRF doesn't support date type. Convert date columns to varchar for lineitem and orders.
+            createLineitem(queryRunner);
+            createOrders(queryRunner);
+            createOrdersEx(queryRunner);
+            createOrdersHll(queryRunner);
+            createNation(queryRunner);
+            createPartitionedNation(queryRunner);
+            createBucketedCustomer(queryRunner);
+            createCustomer(queryRunner);
+            createPart(queryRunner);
+            createPartSupp(queryRunner);
+            createRegion(queryRunner);
+            createSupplier(queryRunner);
+            createEmptyTable(queryRunner);
+            createPrestoBenchTables(queryRunner);
+            createBucketedLineitemAndOrders(queryRunner);
+        }
+
         return queryRunner;
     }
 
