@@ -13,8 +13,8 @@
  */
 package com.facebook.presto.nativeworker;
 
-import com.facebook.presto.testing.QueryRunner;
 import com.facebook.presto.Session;
+import com.facebook.presto.testing.QueryRunner;
 import com.google.common.collect.ImmutableMap;
 
 import java.util.Map;
@@ -50,8 +50,9 @@ public class NativeQueryRunnerUtils
      * Creates all tables for local testing, except for bench tables.
      * @param queryRunner
      */
-    public static void createAllTables(QueryRunner queryRunner)
+    public static void createTpchTables(QueryRunner queryRunner)
     {
+        // TPCH tables
         createLineitem(queryRunner);
         createOrders(queryRunner);
         createOrdersEx(queryRunner);
@@ -66,6 +67,39 @@ public class NativeQueryRunnerUtils
         createSupplier(queryRunner);
         createEmptyTable(queryRunner);
         createBucketedLineitemAndOrders(queryRunner);
+    }
+
+    /**
+     * Creates TPC_DS tables for local testing, except for bench tables.
+     * @param queryRunner
+     */
+    public static void createTpcdsTables(QueryRunner queryRunner, Session session)
+    {
+        // TPC-DS tables
+        createTpcdsCallCenter(queryRunner, session);
+        createTpcdsCatalogPage(queryRunner, session);
+        createTpcdsCatalogReturns(queryRunner, session);
+        createTpcdsCatalogSales(queryRunner, session);
+        createTpcdsCustomer(queryRunner, session);
+        createTpcdsCustomerAddress(queryRunner, session);
+        createTpcdsCustomerDemographics(queryRunner, session);
+        createTpcdsDateDim(queryRunner, session);
+        createTpcdsHouseholdDemographics(queryRunner, session);
+        createTpcdsIncomeBand(queryRunner, session);
+        createTpcdsInventory(queryRunner, session);
+        createTpcdsItem(queryRunner, session);
+        createTpcdsPromotion(queryRunner, session);
+        createTpcdsReason(queryRunner, session);
+        createTpcdsShipMode(queryRunner, session);
+        createTpcdsStore(queryRunner, session);
+        createTpcdsStoreReturns(queryRunner, session);
+        createTpcdsStoreSales(queryRunner, session);
+        createTpcdsTimeDim(queryRunner, session);
+        createTpcdsWarehouse(queryRunner, session);
+        createTpcdsWebPage(queryRunner, session);
+        createTpcdsWebReturns(queryRunner, session);
+        createTpcdsWebSales(queryRunner, session);
+        createTpcdsWebSite(queryRunner, session);
     }
 
     public static void createLineitem(QueryRunner queryRunner)

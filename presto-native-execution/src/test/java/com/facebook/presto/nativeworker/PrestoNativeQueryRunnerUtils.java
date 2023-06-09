@@ -58,6 +58,25 @@ public class PrestoNativeQueryRunnerUtils
                 DEFAULT_STORAGE_FORMAT);
     }
 
+    public static QueryRunner createQueryRunner(String storageFormat)
+            throws Exception
+    {
+        String prestoServerPath = System.getenv("PRESTO_SERVER");
+        String dataDirectory = System.getenv("DATA_DIR");
+        String workerCount = System.getenv("WORKER_COUNT");
+        int cacheMaxSize = 4096; // 4GB size cache
+
+        checkArgument(prestoServerPath != null, "Native worker binary path is missing. Add PRESTO_SERVER environment variable.");
+        checkArgument(dataDirectory != null, "Data directory path is missing.. Add DATA_DIR environment variable.");
+
+        return createQueryRunner(
+                Optional.ofNullable(prestoServerPath),
+                Optional.ofNullable(dataDirectory).map(Paths::get),
+                Optional.ofNullable(workerCount).map(Integer::parseInt),
+                cacheMaxSize,
+                storageFormat);
+    }
+
     public static QueryRunner createQueryRunner(
             Optional<String> prestoServerPath,
             Optional<Path> dataDirectory,
@@ -89,6 +108,8 @@ public class PrestoNativeQueryRunnerUtils
     public static QueryRunner createJavaQueryRunner(String storageFormat) throws Exception
     {
         String dataDirectory = System.getProperty("DATA_DIR");
+        System.out.println("DataDir = " + dataDirectory);
+        System.getProperties().list(System.out);
         return createJavaQueryRunner(Optional.of(Paths.get(dataDirectory)), storageFormat);
     }
 
@@ -99,11 +120,6 @@ public class PrestoNativeQueryRunnerUtils
     }
 
     public static QueryRunner createJavaQueryRunner(Optional<Path> baseDataDirectory, String security, String storageFormat)
-            throws Exception {
-        return createJavaQueryRunner(dataDirectory, security, storageFormat, true);
-    }
-
-    public static QueryRunner createJavaQueryRunner(Optional<Path> dataDirectory, String security, String storageFormat, boolean createTpchTables)
             throws Exception
     {
         Optional<Path> dataDirectory = baseDataDirectory.map(path -> Paths.get(path.toString() + '/' + storageFormat));
@@ -119,26 +135,6 @@ public class PrestoNativeQueryRunnerUtils
                                 "hive.storage-format", storageFormat,
                                 "hive.pushdown-filter-enabled", "true"),
                         dataDirectory);
-
-        if (createTpchTables) {
-            // DWRF doesn't support date type. Convert date columns to varchar for lineitem and orders.
-            createLineitem(queryRunner);
-            createOrders(queryRunner);
-            createOrdersEx(queryRunner);
-            createOrdersHll(queryRunner);
-            createNation(queryRunner);
-            createPartitionedNation(queryRunner);
-            createBucketedCustomer(queryRunner);
-            createCustomer(queryRunner);
-            createPart(queryRunner);
-            createPartSupp(queryRunner);
-            createRegion(queryRunner);
-            createSupplier(queryRunner);
-            createEmptyTable(queryRunner);
-            createPrestoBenchTables(queryRunner);
-            createBucketedLineitemAndOrders(queryRunner);
-        }
-
         return queryRunner;
     }
 
@@ -206,6 +202,10 @@ public class PrestoNativeQueryRunnerUtils
                         // Add a tpch catalog.
                         Files.write(catalogDirectoryPath.resolve("tpchstandard.properties"),
                                 format("connector.name=tpch%n").getBytes());
+
+                        // Add a tpch catalog.
+                        Files.write(catalogDirectoryPath.resolve("tpcdsstandard.properties"),
+                                format("connector.name=tpcds%n").getBytes());
 
                         // Disable stack trace capturing as some queries (using TRY) generate a lot of exceptions.
                         return new ProcessBuilder(prestoServerPath, "--logtostderr=1", "--v=1")

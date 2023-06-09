@@ -15,6 +15,7 @@ package com.facebook.presto.nativeworker;
 
 import com.facebook.airlift.log.Logger;
 import com.facebook.airlift.log.Logging;
+import com.facebook.presto.Session;
 import com.facebook.presto.testing.QueryRunner;
 import com.facebook.presto.tests.DistributedQueryRunner;
 
@@ -29,12 +30,19 @@ public class HiveExternalWorkerQueryRunner
         Logging.initialize();
 
         // Create tables before launching distributed runner.
-        QueryRunner javaQueryRunner = PrestoNativeQueryRunnerUtils.createJavaQueryRunner();
-        NativeQueryRunnerUtils.createAllTables(javaQueryRunner);
+        QueryRunner javaQueryRunner = PrestoNativeQueryRunnerUtils.createJavaQueryRunner(); // DWRF
+        NativeQueryRunnerUtils.createTpchTables(javaQueryRunner);
         javaQueryRunner.close();
 
+        // Create TPCDS in PARQUET tables before launching distributed runner.
+        QueryRunner javaQueryRunner2 = PrestoNativeQueryRunnerUtils.createJavaQueryRunner("PARQUET");
+        Session tpcdsSession = Session.builder(javaQueryRunner2.getDefaultSession()).setSchema("tpcds").build();
+        NativeQueryRunnerUtils.createTpcdsTables(javaQueryRunner2, tpcdsSession);
+        javaQueryRunner2.close();
+
         // Launch distributed runner.
-        DistributedQueryRunner queryRunner = (DistributedQueryRunner) PrestoNativeQueryRunnerUtils.createQueryRunner();
+        //DistributedQueryRunner queryRunner = (DistributedQueryRunner) PrestoNativeQueryRunnerUtils.createQueryRunner("PARQUET");
+        DistributedQueryRunner queryRunner = (DistributedQueryRunner) PrestoNativeQueryRunnerUtils.createNativeQueryRunner(true, "PARQUET");
         Thread.sleep(10);
         Logger log = Logger.get(DistributedQueryRunner.class);
         log.info("======== SERVER STARTED ========");

@@ -48,7 +48,6 @@ import static com.facebook.presto.nativeworker.NativeQueryRunnerUtils.createTpcd
 import static com.facebook.presto.nativeworker.NativeQueryRunnerUtils.createTpcdsWebReturns;
 import static com.facebook.presto.nativeworker.NativeQueryRunnerUtils.createTpcdsWebSales;
 import static com.facebook.presto.nativeworker.NativeQueryRunnerUtils.createTpcdsWebSite;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public abstract class AbstractTestNativeTpcdsQueries
@@ -74,7 +73,7 @@ public abstract class AbstractTestNativeTpcdsQueries
     {
         String dataDirectory = System.getProperty("DATA_DIR");
         QueryRunner queryRunner = PrestoNativeQueryRunnerUtils.createJavaQueryRunner(
-                Optional.of(Paths.get(dataDirectory)), "sql-standard", storageFormat, false);
+                Optional.of(Paths.get(dataDirectory)), "sql-standard", storageFormat);
 
         Session session = getSession();
         createTpcdsCallCenter(queryRunner, session);
