@@ -17,6 +17,18 @@ project(PrestoCpp)
 set(VELOX_ROOT ${CMAKE_BINARY_DIR}/velox)
 list(PREPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/velox/CMake")
 
+# Include Velox's ThirdPartyToolchain dependencies macros.
+# This allowes to build
+include(ResolveDependency)
+
+# ResolveDependency already adds the Velox path to find
+# the bunded instructions. This adds the Prestissimo path to
+# find Prestissimo only bundled dependencies.
+list(APPEND CMAKE_MODULE_PATH
+    "${PROJECT_SOURCE_DIR}/CMake/resolve_dependency_modules")
+# The default for resolving dependencies used in ResolveDependency.
+set(VELOX_DEPENDENCY_SOURCE AUTO)
+
 execute_process(
   COMMAND
     bash -c
@@ -106,20 +118,39 @@ set(VELOX_BUILD_TEST_UTILS
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+include_directories(.)
+add_subdirectory(velox)
+
+
 set(Boost_USE_MULTITHREADED TRUE)
-find_package(
-  Boost
-  1.66.0
-  REQUIRED
-  program_options
-  context
-  filesystem
-  regex
-  thread
-  system
-  date_time
-  atomic)
-include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+#find_package(
+#  Boost
+#  1.66.0
+#  REQUIRED
+#  program_options
+#  context
+#  filesystem
+#  regex
+#  thread
+#  system
+#  date_time
+#  atomic)
+#message(STATUS "Boost include dirs: " "${Boost_INCLUDE_DIRS}")
+#include_directories(SYSTEM ${Boost_INCLUDE_DIRS})
+
+
+set(BOOST_INCLUDE_LIBRARIES
+    headers
+    atomic
+    context
+    date_time
+    filesystem
+    program_options
+    regex
+    system
+    thread)
+set_source(Boost)
+resolve_dependency(Boost 1.66.0 COMPONENTS ${BOOST_INCLUDE_LIBRARIES})
 
 find_package(gflags COMPONENTS shared)
 
@@ -178,7 +209,7 @@ find_path(PROXYGEN_DIR NAMES include/proxygen)
 set(PROXYGEN_INCLUDE_DIR "${PROXYGEN_DIR}/include/proxygen")
 
 include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR} ${PROXYGEN_INCLUDE_DIR})
-include_directories(.)
+#include_directories(.)
 include_directories(velox)
 include_directories(velox/velox/external/xxhash)
 include_directories(${VELOX_ROOT})
@@ -187,7 +218,7 @@ include_directories(${CMAKE_BINARY_DIR})
 # set this for backwards compatibility, will be overwritten in velox/
 set(VELOX_GTEST_INCUDE_DIR "velox/third_party/googletest/googletest/include")
 
-add_subdirectory(velox)
+#add_subdirectory(velox)
 
 if(PRESTO_ENABLE_TESTING)
   set(BUILD_TESTING ON) # some third-party dependency could have disabled this.
