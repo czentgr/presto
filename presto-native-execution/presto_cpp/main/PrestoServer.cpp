@@ -781,7 +781,11 @@ void PrestoServer::stop() {
     PRESTO_SHUTDOWN_LOG(INFO) << "HTTP Server stopped.";
   }
 
-  je_malloc_stats_print(NULL, NULL, NULL);
+  #ifdef __linux__
+    malloc_stats_print(NULL, NULL, NULL);
+  #else
+    je_malloc_stats_print(NULL, NULL, NULL);
+  #endif
 }
 
 size_t PrestoServer::numDriverThreads() const {
