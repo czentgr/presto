@@ -17,6 +17,7 @@
 #include <boost/asio/ip/tcp.hpp>
 #include <boost/lexical_cast.hpp>
 #include <glog/logging.h>
+#include <jemalloc/jemalloc.h>
 #include "CoordinatorDiscoverer.h"
 #include "presto_cpp/main/Announcer.h"
 #include "presto_cpp/main/PeriodicTaskManager.h"
@@ -779,6 +780,8 @@ void PrestoServer::stop() {
     httpServer_->stop();
     PRESTO_SHUTDOWN_LOG(INFO) << "HTTP Server stopped.";
   }
+
+  je_malloc_stats_print(NULL, NULL, NULL);
 }
 
 size_t PrestoServer::numDriverThreads() const {
