@@ -64,6 +64,7 @@ std::string nodeState2String(NodeState nodeState);
 
 class Announcer;
 class SignalHandler;
+class DumpSignalHandler;
 class TaskManager;
 class TaskResource;
 class PeriodicTaskManager;
@@ -234,6 +235,7 @@ class PrestoServer {
 
   std::unique_ptr<http::HttpServer> httpServer_;
   std::unique_ptr<SignalHandler> signalHandler_;
+  std::unique_ptr<DumpSignalHandler> dumpSignalHandler_;
   std::unique_ptr<Announcer> announcer_;
   std::unique_ptr<PeriodicHeartbeatManager> heartbeatManager_;
   std::shared_ptr<velox::memory::MemoryPool> pool_;

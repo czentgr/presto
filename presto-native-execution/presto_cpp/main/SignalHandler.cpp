@@ -13,6 +13,7 @@
  */
 #include "presto_cpp/main/SignalHandler.h"
 #include <folly/io/async/EventBaseManager.h>
+#include <jemalloc/jemalloc.h>
 #include <csignal>
 #include "presto_cpp/main/PrestoServer.h"
 #include "presto_cpp/main/common/Utils.h"
@@ -24,11 +25,39 @@ SignalHandler::SignalHandler(PrestoServer* prestoServer)
       prestoServer_(prestoServer) {
   registerSignalHandler(SIGINT);
   registerSignalHandler(SIGTERM);
+  registerSignalHandler(SIGABRT);
 }
 
 void SignalHandler::signalReceived(int signum) noexcept {
   PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
+const char *fileName = "je_stopping_signal_heap.out";
+#ifdef __linux__
+  malloc_stats_print(NULL, NULL, NULL);
+  mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
+#else
+  je_malloc_stats_print(NULL, NULL, NULL);
+  je_mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
+#endif
   prestoServer_->stop();
+}
+
+
+DumpSignalHandler::DumpSignalHandler()
+    : folly::AsyncSignalHandler(folly::EventBaseManager::get()->getEventBase()) {
+  registerSignalHandler(SIGUSR1);
+  registerSignalHandler(SIGUSR2);
+}
+
+void DumpSignalHandler::signalReceived(int signum) noexcept {
+  PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
+  const char *fileName = "je_dump_signal_heap.out";
+#ifdef __linux__
+  malloc_stats_print(NULL, NULL, NULL);
+  mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
+#else
+  je_malloc_stats_print(NULL, NULL, NULL);
+  je_mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
+#endif
 }
 
 } // namespace facebook::presto

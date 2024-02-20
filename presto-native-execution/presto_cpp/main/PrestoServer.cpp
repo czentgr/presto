@@ -131,6 +131,7 @@ std::string nodeState2String(NodeState nodeState) {
 PrestoServer::PrestoServer(const std::string& configDirectoryPath)
     : configDirectoryPath_(configDirectoryPath),
       signalHandler_(std::make_unique<SignalHandler>(this)),
+      dumpSignalHandler_(std::make_unique<DumpSignalHandler>()),
       start_(std::chrono::steady_clock::now()),
       memoryInfo_(std::make_unique<protocol::MemoryInfo>()) {}
 
