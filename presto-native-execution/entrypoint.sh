@@ -15,7 +15,7 @@ echo "node.id=$HOSTNAME" >> /opt/presto-server/etc/node.properties
 
 # Check for the reason of setting split_preload_per_driver:
 # https://github.com/prestodb/presto/issues/20020#issuecomment-1785083459
-MALLOC_CONF="prof:true,prof_active:true,prof_leak:true,prof_final:true,prof_prefix:/var/log/presto-server/jeprof" \
+MALLOC_CONF="prof:true,prof_active:true,prof_leak:true,prof_prefix:/var/log/presto-server/jeprof" \
 GLOG_logtostderr=1 presto_server \
     --etc-dir=/opt/presto-server/etc \
     2>&1 | tee /var/log/presto-server/console.log
