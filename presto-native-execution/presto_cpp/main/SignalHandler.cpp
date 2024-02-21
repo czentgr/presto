@@ -30,7 +30,7 @@ SignalHandler::SignalHandler(PrestoServer* prestoServer)
 
 void SignalHandler::signalReceived(int signum) noexcept {
   PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
-const char *fileName = "je_stopping_signal_heap.out";
+const char *fileName = "/var/log/presto-server/je_stopping_signal_heap.out";
 #ifdef __linux__
   malloc_stats_print(NULL, NULL, NULL);
   mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
@@ -50,7 +50,7 @@ DumpSignalHandler::DumpSignalHandler()
 
 void DumpSignalHandler::signalReceived(int signum) noexcept {
   PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
-  const char *fileName = "je_dump_signal_heap.out";
+  const char *fileName = "/var/log/presto-server/je_dump_signal_heap.out";
 #ifdef __linux__
   malloc_stats_print(NULL, NULL, NULL);
   mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
