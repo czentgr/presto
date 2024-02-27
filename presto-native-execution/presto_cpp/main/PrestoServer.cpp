@@ -665,8 +665,8 @@ void PrestoServer::initializeVeloxMemory() {
     options.useMmapAllocator = true;
   }
   options.checkUsageLeak = systemConfig->enableMemoryLeakCheck();
-  options.trackDefaultUsage =
-      systemConfig->enableSystemMemoryPoolUsageTracking();
+  options.trackDefaultUsage = true;
+//      systemConfig->enableSystemMemoryPoolUsageTracking();
   options.coreOnAllocationFailureEnabled =
       systemConfig->coreOnAllocationFailureEnabled();
   if (!systemConfig->memoryArbitratorKind().empty()) {
