@@ -15,6 +15,7 @@ RUN cd presto-native-execution && \
     mkdir -p prestissimo && \
     cp _build/debug/presto_cpp/main/presto_server prestissimo && \
     cp `which jeprof` prestissimo && \
+    cp /usr/local/bin/valgrind prestissimo && \
     mkdir -p prestissimo/runtime-libraries && \
     ldd _build/debug/presto_cpp/main/presto_server | awk 'NF == 4 { system("cp " $3 " prestissimo/runtime-libraries/") }' && \
     tar cvf prestissimo.tar entrypoint.sh velox.properties prestissimo
@@ -49,6 +50,7 @@ RUN tar xvf prestissimo.tar && \
     mkdir -p /opt/presto-server/etc && \
     mv prestissimo/presto_server /usr/local/bin/ && \
     mv prestissimo/jeprof /usr/local/bin/ && \
+    mv prestissimo/valgrind /usr/local/bin/ && \
     mv velox.properties /opt/presto-server/etc/ && \
     mv entrypoint.sh /opt/ && \
     mv prestissimo/runtime-libraries/* /usr/local/lib64/ && \
