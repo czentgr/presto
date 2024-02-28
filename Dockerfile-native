@@ -18,6 +18,8 @@ RUN cd presto-native-execution && \
     cp /usr/local/bin/valgrind prestissimo && \
     mkdir -p prestissimo/runtime-libraries && \
     ldd _build/debug/presto_cpp/main/presto_server | awk 'NF == 4 { system("cp " $3 " prestissimo/runtime-libraries/") }' && \
+    mkdir -p prestissimo/valgrind-libraries && \
+    cp /usr/local/lib/valgrind/* prestissimo/valgrind-libraries/ && \
     tar cvf prestissimo.tar entrypoint.sh velox.properties prestissimo
 
 ##
@@ -54,6 +56,8 @@ RUN tar xvf prestissimo.tar && \
     mv velox.properties /opt/presto-server/etc/ && \
     mv entrypoint.sh /opt/ && \
     mv prestissimo/runtime-libraries/* /usr/local/lib64/ && \
+    mkdir -p /usr/local/lib64/valgrind && \
+    cp prestissimo/valgrind-libraries/* /usr/local/lib64/valgrind/ && \
     touch /opt/presto-native-execution-${PRESTO_VERSION}
 
 ENTRYPOINT ["/opt/entrypoint.sh"]
