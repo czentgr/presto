@@ -50,6 +50,7 @@ void DumpSignalHandler::signalReceived(int signum) noexcept {
   PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
   const char *fileName = "/var/log/presto-server/je_dump_signal_heap.out";
 #ifdef __linux__
+  malloc_stats_print(NULL, NULL, "axe");
   mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
 #else
   je_mallctl("prof.dump", NULL, NULL, &fileName, sizeof(const char *));
