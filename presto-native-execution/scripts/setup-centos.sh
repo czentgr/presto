@@ -94,13 +94,13 @@ else
   echo "All dependencies for Prestissimo installed!"
 fi
 
-(
-  git clone https://github.com/envytools/valgrind.git &&
-  cd valgrind &&
-  ./autogen.sh &&
-  ./configure &&
-  make &&
-  make install
-)
+#(
+#  git clone https://github.com/envytools/valgrind.git &&
+#  cd valgrind &&
+#  ./autogen.sh &&
+#  ./configure &&
+#  make &&
+#  make install
+#)
 
 dnf clean all
