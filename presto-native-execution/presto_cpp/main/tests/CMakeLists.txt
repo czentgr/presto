@@ -33,6 +33,7 @@ add_executable(ahana_stats_test StatsReporterImplTest.cpp)
 target_link_libraries(ahana_stats_test presto_server_lib velox_exec_test_lib
                       gtest gtest_main)
 
+#set(CMAKE_CXX_STANDARD_LIBRARIES "${JEMALLOC_LINK_LIBRARIES}")
 target_link_libraries(
   presto_server_test
   velox_caching
@@ -50,7 +51,8 @@ target_link_libraries(
   ${RE2}
   gmock
   gtest
-  gtest_main)
+  gtest_main
+  "${JEMALLOC_LINK_LIBRARIES}")
 
 set_property(TARGET presto_server_test PROPERTY JOB_POOL_LINK
                                                 presto_link_job_pool)

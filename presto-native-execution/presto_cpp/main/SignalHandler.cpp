@@ -13,6 +13,7 @@
  */
 #include "presto_cpp/main/SignalHandler.h"
 #include <folly/io/async/EventBaseManager.h>
+#include <jemalloc/jemalloc.h>
 #include <csignal>
 #include "presto_cpp/main/PrestoServer.h"
 #include "presto_cpp/main/common/Utils.h"
@@ -24,11 +25,22 @@ SignalHandler::SignalHandler(PrestoServer* prestoServer)
       prestoServer_(prestoServer) {
   registerSignalHandler(SIGINT);
   registerSignalHandler(SIGTERM);
+  registerSignalHandler(SIGUSR1);
 }
 
 void SignalHandler::signalReceived(int signum) noexcept {
   PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
-  prestoServer_->stop();
+  if (signum == SIGUSR1) {
+    const char* fileName = "/var/log/presto-server/je_dump_signal_heap.out";
+#ifdef __linux__
+    malloc_stats_print(NULL, NULL, "axe");
+    mallctl("prof.dump", NULL, NULL, &fileName, sizeof(fileName));
+#else
+    je_malloc_stats_print(NULL, NULL, "axe");
+#endif
+  } else {
+    prestoServer_->stop();
+  }
 }
 
 } // namespace facebook::presto

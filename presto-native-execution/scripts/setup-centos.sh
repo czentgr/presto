@@ -29,7 +29,7 @@ else
 fi
 
 function install_presto_deps_from_package_managers {
-  dnf install -y maven java clang-tools-extra jq perl-XML-XPath
+  dnf install -y maven java clang-tools-extra jq perl-XML-XPath autoconf pkgconfig
   # This python version is installed by the Velox setup scripts
   pip3.9 install regex pyyaml chevron black
 }
@@ -54,11 +54,20 @@ function install_proxygen {
   git checkout $FB_OS_VERSION &&
   cmake_install -DBUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON
 }
+function install_jemalloc {
+  git clone https://github.com/jemalloc/jemalloc &&
+  cd jemalloc &&
+  git checkout 5.3.0 &&
+  ./autogen.sh --enable-prof &&
+  make &&
+  make install
+}
 
 function install_presto_deps {
   run_and_time install_presto_deps_from_package_managers
   run_and_time install_gperf
   run_and_time install_proxygen
+  run_and_time install_jemalloc
 }
 
 if [[ $# -ne 0 ]]; then
