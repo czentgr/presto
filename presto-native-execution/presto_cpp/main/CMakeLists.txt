@@ -150,7 +150,7 @@ endif()
 # However, we also would need to add its dependencies (tpch_gen etc). TODO
 # change the target in Velox to a library target then we can move this to the
 # presto_server_lib.
-target_link_libraries(presto_server presto_server_lib velox_tpch_connector velox_tpcds_connector)
+target_link_libraries(presto_server presto_server_lib velox_tpch_connector velox_tpcds_connector "${JEMALLOC_LINK_LIBRARIES}")
 
 # Clang requires explicit linking with libatomic.
 if(

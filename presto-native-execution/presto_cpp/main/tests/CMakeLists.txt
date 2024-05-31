@@ -42,6 +42,7 @@ add_test(
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+#set(CMAKE_CXX_STANDARD_LIBRARIES "${JEMALLOC_LINK_LIBRARIES}")
 target_link_libraries(
   presto_server_test
   velox_caching
@@ -61,6 +62,7 @@ target_link_libraries(
   GTest::gmock
   GTest::gtest
   GTest::gtest_main
+  "${JEMALLOC_LINK_LIBRARIES}"
 )
 
 # Clang requires explicit linking with libatomic.

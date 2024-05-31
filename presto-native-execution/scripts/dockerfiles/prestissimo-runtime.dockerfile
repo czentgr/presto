@@ -26,6 +26,7 @@ ENV BUILD_DIR=""
 
 RUN mkdir -p /prestissimo /runtime-libraries
 COPY . /prestissimo/
+RUN /prestissimo/scripts/setup-centos.sh install_presto_deps_from_package_managers install_jemalloc
 RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     /bin/bash -c 'if [[ "${EXTRA_CMAKE_FLAGS}" =~ -DPRESTO_ENABLE_CUDF=ON ]]; then unset CC; unset CXX; source /opt/rh/gcc-toolset-14/enable; fi && \
     EXTRA_CMAKE_FLAGS=${EXTRA_CMAKE_FLAGS} \

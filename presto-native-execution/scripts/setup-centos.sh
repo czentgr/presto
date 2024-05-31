@@ -33,7 +33,7 @@ export NPROC=${NPROC:-$(getconf _NPROCESSORS_ONLN)}
 
 function install_presto_deps_from_package_managers {
   # proxygen requires c-ares-devel
-  dnf install -y maven java clang-tools-extra jq perl-XML-XPath c-ares-devel
+  dnf install -y maven java clang-tools-extra jq perl-XML-XPath c-ares-devel autoconf pkgconfig
   # This python version is installed by the Velox setup scripts
   pip install regex pyyaml chevron black ptsd-jbroll
 }
@@ -62,12 +62,21 @@ function install_datasketches {
   wget_and_untar https://github.com/apache/datasketches-cpp/archive/refs/tags/${DATASKETCHES_VERSION}.tar.gz datasketches-cpp
   cmake_install_dir datasketches-cpp -DBUILD_TESTS=OFF
 }
+function install_jemalloc {
+  git clone https://github.com/jemalloc/jemalloc &&
+  cd jemalloc &&
+  git checkout 5.3.0 &&
+  ./autogen.sh --enable-prof &&
+  make &&
+  make install
+}
 
 function install_presto_deps {
   run_and_time install_presto_deps_from_package_managers
   run_and_time install_gperf
   run_and_time install_proxygen
   run_and_time install_datasketches
+  run_and_time install_jemalloc
 }
 
 if [[ $# -ne 0 ]]; then
