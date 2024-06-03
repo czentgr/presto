@@ -10,8 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG DEPENDENCY_IMAGE=presto/prestissimo-dependency:centos8
-ARG BASE_IMAGE=quay.io/centos/centos:stream8
+ARG DEPENDENCY_IMAGE=presto/prestissimo-dependency:centos9
+ARG BASE_IMAGE=quay.io/centos/centos:stream9
 FROM ${DEPENDENCY_IMAGE} as prestissimo-image
 
 ARG OSNAME=centos
