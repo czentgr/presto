@@ -46,5 +46,5 @@ ENV BUILD_DIR=""
 COPY --chmod=0775 --from=prestissimo-image /prestissimo/${BUILD_BASE_DIR}/${BUILD_DIR}/presto_cpp/main/presto_server /usr/local/bin/
 COPY --chmod=0775 --from=prestissimo-image /prestissimo/jeprof /usr/local/bin/
 COPY --chmod=0775 --from=prestissimo-image /runtime-libraries/* /usr/local/lib/
-RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/prestissimo.conf && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/prestissimo.conf && ldconfig
+RUN echo "/usr/local/lib" >> /etc/ld.so.conf.d/prestissimo.conf && ldconfig
 RUN ldd /usr/local/bin/presto_server
