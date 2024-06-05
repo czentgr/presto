@@ -16,22 +16,25 @@ set -x
 
 export FB_OS_VERSION=v2024.04.01.00
 export nproc=$(getconf _NPROCESSORS_ONLN)
-export CC=/opt/rh/gcc-toolset-9/root/bin/gcc
-export CXX=/opt/rh/gcc-toolset-9/root/bin/g++
+export CC=/opt/rh/gcc-toolset-12/root/bin/gcc
+export CXX=/opt/rh/gcc-toolset-12/root/bin/g++
 
 CPU_TARGET="${CPU_TARGET:-avx}"
 SCRIPT_DIR=$(readlink -f "$(dirname "${BASH_SOURCE[0]}")")
-if [ -f "${SCRIPT_DIR}/setup-centos8.sh" ]
+if [ -f "${SCRIPT_DIR}/setup-centos9.sh" ]
 then
-  source "${SCRIPT_DIR}/setup-centos8.sh"
+  source "${SCRIPT_DIR}/setup-centos9.sh"
 else
-  source "${SCRIPT_DIR}/../velox/scripts/setup-centos8.sh"
+  source "${SCRIPT_DIR}/../velox/scripts/setup-centos9.sh"
 fi
+
+export CC=/opt/rh/gcc-toolset-12/root/bin/gcc
+export CXX=/opt/rh/gcc-toolset-12/root/bin/g++
 
 function install_presto_deps_from_package_managers {
   dnf install -y maven java clang-tools-extra jq perl-XML-XPath autoconf pkgconfig
   # This python version is installed by the Velox setup scripts
-  pip3.9 install regex pyyaml chevron black
+  pip3 install regex pyyaml chevron black
 }
 
 function install_gperf {
@@ -54,6 +57,7 @@ function install_proxygen {
   git checkout $FB_OS_VERSION &&
   cmake_install -DBUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON
 }
+
 function install_jemalloc {
   git clone https://github.com/jemalloc/jemalloc &&
   cd jemalloc &&
@@ -71,8 +75,8 @@ function install_presto_deps {
 }
 
 if [[ $# -ne 0 ]]; then
-  # Activate gcc9; enable errors on unset variables afterwards.
-  source /opt/rh/gcc-toolset-9/enable || exit 1
+  # Activate gcc12; enable errors on unset variables afterwards.
+  source /opt/rh/gcc-toolset-12/enable || exit 1
   set -u
   for cmd in "$@"; do
     run_and_time "${cmd}"
@@ -85,8 +89,8 @@ else
   else
     echo "Skipping installation of build dependencies since INSTALL_PREREQUISITES is not set"
   fi
-  # Activate gcc9; enable errors on unset variables afterwards.
-  source /opt/rh/gcc-toolset-9/enable || exit 1
+  # Activate gcc12; enable errors on unset variables afterwards.
+  source /opt/rh/gcc-toolset-12/enable || exit 1
   set -u
   install_velox_deps
   install_presto_deps
