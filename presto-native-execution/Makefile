@@ -60,14 +60,19 @@ CMAKE_FLAGS += -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 endif
 endif
 
+# Prefer using clang, if available, over default gcc
+ifneq (, $(shell which clang))
+CMAKE_FLAGS += -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++
+endif
+
 all: release			#: Build the release version
 
 clean:					#: Delete all build artifacts
 	rm -rf $(BUILD_BASE_DIR)
 
 velox-submodule:		#: Check out code for velox submodule
-	git submodule sync --recursive
-	git submodule update --init --recursive
+#	git submodule sync --recursive
+#	git submodule update --init --recursive
 
 submodules: velox-submodule
 

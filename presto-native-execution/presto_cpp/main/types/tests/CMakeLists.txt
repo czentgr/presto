@@ -27,7 +27,8 @@ target_link_libraries(
   presto_type_converter
   presto_types
   velox_type_fbhive
-  velox_hive_partition_function)
+  velox_hive_partition_function
+  $<$<CXX_COMPILER_ID:Clang>:atomic>)
 
 add_executable(presto_expressions_test RowExpressionTest.cpp ValuesPipeTest.cpp
                                        PlanConverterTest.cpp)
@@ -62,6 +63,7 @@ target_link_libraries(
   velox_serialization
   velox_type
   velox_type_parser
+  $<$<CXX_COMPILER_ID:Clang>:atomic>
   Boost::filesystem
   ${RE2}
   ${FOLLY_WITH_DEPENDENCIES}
@@ -87,5 +89,6 @@ target_link_libraries(
   presto_types
   velox_hive_connector
   velox_tpch_connector
+  $<$<CXX_COMPILER_ID:Clang>:atomic>
   gtest
   gtest_main)

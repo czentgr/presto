@@ -69,6 +69,7 @@ target_link_libraries(
   velox_type_tz
   velox_vector
   velox_window
+  $<$<CXX_COMPILER_ID:Clang>:atomic>
   ${RE2}
   ${FOLLY_WITH_DEPENDENCIES}
   ${GLOG}

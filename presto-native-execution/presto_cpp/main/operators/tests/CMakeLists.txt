@@ -34,6 +34,7 @@ target_link_libraries(
   velox_exec
   velox_memory
   velox_exec
+  $<$<CXX_COMPILER_ID:Clang>:atomic>
   gmock
   gtest
   gtest_main)

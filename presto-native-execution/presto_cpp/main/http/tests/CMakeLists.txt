@@ -16,7 +16,8 @@ add_test(
   COMMAND presto_http_test
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(presto_http_test presto_http gtest gtest_main)
+target_link_libraries(presto_http_test presto_http
+                      $<$<CXX_COMPILER_ID:Clang>:atomic> gtest gtest_main)
 
 set_property(TARGET presto_http_test PROPERTY JOB_POOL_LINK
                                               presto_link_job_pool)

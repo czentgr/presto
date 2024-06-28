@@ -23,6 +23,7 @@ ENV PROMPT_ALWAYS_RESPOND=n
 ENV BUILD_BASE_DIR=_build
 ENV BUILD_DIR=""
 
+RUN dnf_install clang gcc-toolset-13-libatomic-devel -y
 RUN mkdir -p /prestissimo /runtime-libraries
 COPY . /prestissimo/
 RUN EXTRA_CMAKE_FLAGS=${EXTRA_CMAKE_FLAGS} \
