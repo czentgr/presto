@@ -124,3 +124,19 @@ help:					#: Show the help messages
 	@cat $(firstword $(MAKEFILE_LIST)) | \
 	awk '/^[-a-z]+:/' | \
 	awk -F: '{ printf("%-20s   %s\n", $$1, $$NF) }'
+
+clang-debug:				#: Build with debugging symbols using Clang
+	$(MAKE) debug EXTRA_CMAKE_FLAGS=" ${EXTRA_CMAKE_FLAGS} \
+                                            -DCMAKE_C_COMPILER=clang \
+                                            -DCMAKE_CXX_COMPILER=clang++"
+
+
+clang-release:				#: Build the release version using Clang
+	$(MAKE) release EXTRA_CMAKE_FLAGS=" ${EXTRA_CMAKE_FLAGS} \
+                                            -DCMAKE_C_COMPILER=clang \
+                                            -DCMAKE_CXX_COMPILER=clang++"
+
+clang-cmake-and-build:			#: cmake and build without updating submodules which requires git
+	$(MAKE) cmake-and-build EXTRA_CMAKE_FLAGS=" ${EXTRA_CMAKE_FLAGS} \
+                                            -DCMAKE_C_COMPILER=clang \
+                                            -DCMAKE_CXX_COMPILER=clang++"
