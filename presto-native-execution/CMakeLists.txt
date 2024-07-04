@@ -187,6 +187,10 @@ include_directories(${CMAKE_BINARY_DIR})
 # set this for backwards compatibility, will be overwritten in velox/
 set(VELOX_GTEST_INCUDE_DIR "velox/third_party/googletest/googletest/include")
 
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux" AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_GREATER_EQUAL 15)
+  set(CMAKE_EXE_LINKER_FLAGS "-latomic")
+endif()
+
 add_subdirectory(velox)
 
 if(PRESTO_ENABLE_TESTING)
