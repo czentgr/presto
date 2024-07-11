@@ -149,8 +149,8 @@ void PrometheusStatsReporter::registerHistogramMetricExportType(
     int64_t min,
     int64_t max,
     const std::vector<int32_t>& pcts) const {
-  registerHistogramMetricExportType(
-      key.toString().c_str(), bucketWidth, min, max, pcts);
+  //registerHistogramMetricExportType(
+  //    key.toString().c_str(), bucketWidth, min, max, pcts);
 }
 
 void PrometheusStatsReporter::addMetricValue(

@@ -16,8 +16,6 @@ set -x
 
 export FB_OS_VERSION=v2024.04.01.00
 export nproc=$(getconf _NPROCESSORS_ONLN)
-export CC=/opt/rh/gcc-toolset-12/root/bin/gcc
-export CXX=/opt/rh/gcc-toolset-12/root/bin/g++
 
 CPU_TARGET="${CPU_TARGET:-avx}"
 SCRIPT_DIR=$(readlink -f "$(dirname "${BASH_SOURCE[0]}")")
@@ -38,7 +36,7 @@ function install_gperf {
   wget http://ftp.gnu.org/pub/gnu/gperf/gperf-3.1.tar.gz &&
   tar xvfz gperf-3.1.tar.gz &&
   cd gperf-3.1 &&
-  ./configure --prefix=/usr/local/gperf/3_1 &&
+  ./configure --prefix=/usr/local/gperf/3_1 CFLAGS="$CFLAGS -Wno-register" CXXFLAGS="$CXXFLAGS -Wno-register" &&
   make "-j$(nproc)" &&
   make install
   if [ -f /usr/local/bin/gperf ]; then
@@ -49,10 +47,15 @@ function install_gperf {
 }
 
 function install_proxygen {
+  EXTRA_CMAKE_FLAGS=""
+  if [[ ${USE_CLANG} != "false" ]]; then
+    EXTRA_CMAKE_FLAGS="-DCMAKE_EXE_LINKER_FLAGS=\"-latomic\""
+  fi
+
   git clone https://github.com/facebook/proxygen &&
   cd proxygen &&
   git checkout $FB_OS_VERSION &&
-  cmake_install -DBUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON
+  cmake_install -DBUILD_TESTS=OFF -DBUILD_SHARED_LIBS=ON ${EXTRA_CMAKE_FLAGS}
 }
 
 function install_presto_deps {
@@ -62,9 +65,14 @@ function install_presto_deps {
 }
 
 if [[ $# -ne 0 ]]; then
-  # Activate gcc12; enable errors on unset variables afterwards.
-  source /opt/rh/gcc-toolset-12/enable || exit 1
-  set -u
+  if [[ ${USE_CLANG} != "false" ]]; then
+    export CC=/usr/bin/clang
+    export CXX=/usr/bin/clang++
+  else
+    # Activate gcc12; enable errors on unset variables afterwards.
+    source /opt/rh/gcc-toolset-12/enable || exit 1
+    set -u
+  fi
   for cmd in "$@"; do
     run_and_time "${cmd}"
   done
@@ -76,9 +84,14 @@ else
   else
     echo "Skipping installation of build dependencies since INSTALL_PREREQUISITES is not set"
   fi
-  # Activate gcc12; enable errors on unset variables afterwards.
-  source /opt/rh/gcc-toolset-12/enable || exit 1
-  set -u
+  if [[ ${USE_CLANG} != "false" ]]; then
+    export CC=/usr/bin/clang
+    export CXX=/usr/bin/clang++
+  else
+    # Activate gcc12; enable errors on unset variables afterwards.
+    source /opt/rh/gcc-toolset-12/enable || exit 1
+    set -u
+  fi
   install_velox_deps
   install_presto_deps
   echo "All dependencies for Prestissimo installed!"

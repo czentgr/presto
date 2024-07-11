@@ -34,6 +34,10 @@ function install_presto_deps {
 }
 
 if [[ $# -ne 0 ]]; then
+  if [[ ${USE_CLANG} != "false" ]]; then
+    export CC=/usr/bin/clang
+    export CXX=/usr/bin/clang++
+  fi
   for cmd in "$@"; do
     run_and_time "${cmd}"
   done

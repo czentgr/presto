@@ -23,10 +23,9 @@ ENV PROMPT_ALWAYS_RESPOND=n
 ENV BUILD_BASE_DIR=_build
 ENV BUILD_DIR=""
 
-RUN dnf install clang gcc-toolset-13-libatomic-devel -y
 RUN mkdir -p /prestissimo /runtime-libraries
 COPY . /prestissimo/
-RUN EXTRA_CMAKE_FLAGS=${EXTRA_CMAKE_FLAGS} \
+RUN EXTRA_CMAKE_FLAGS=${EXTRA_CMAKE_FLAGS} Arrow_SOURCE=BUNDLED \
     make -j${NUM_THREADS} --directory="/prestissimo/" clang-cmake-and-build BUILD_TYPE=${BUILD_TYPE} BUILD_DIR=${BUILD_DIR} BUILD_BASE_DIR=${BUILD_BASE_DIR}
 RUN !(LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64 ldd /prestissimo/${BUILD_BASE_DIR}/${BUILD_DIR}/presto_cpp/main/presto_server  | grep "not found") && \
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64 ldd /prestissimo/${BUILD_BASE_DIR}/${BUILD_DIR}/presto_cpp/main/presto_server | awk 'NF == 4 { system("cp " $3 " /runtime-libraries") }'
