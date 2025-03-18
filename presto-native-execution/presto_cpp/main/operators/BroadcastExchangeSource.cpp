@@ -73,7 +73,13 @@ BroadcastExchangeSource::request(
       promise.setValue();
     }
 
-    return Response{totalBytes, atEnd_, reader_->remainingPageSizes()};
+    int64_t remainingBytes = 0;
+    for (const auto pageSize : reader_->remainingPageSizes()) {
+      remainingBytes += pageSize;
+    }
+    VLOG(1) << "BroadcastExchangeSource::request - remainingBytes:" << remainingBytes;
+
+    return Response{totalBytes, atEnd_, remainingBytes};
   });
 }
 
@@ -83,6 +89,10 @@ BroadcastExchangeSource::requestDataSizes(
   // Deferred execution to avoid blocking the caller thread.
   return folly::makeSemiFuture().deferValue([this](auto&&) -> Response {
     auto remainingPageSizes = reader_->remainingPageSizes();
+    int64_t remainingBytes = 0;
+    for (const auto pageSize : remainingPageSizes) {
+      remainingBytes += pageSize;
+    }
 
     // If the source is empty from the start, signal completion to ExchangeQueue
     if (remainingPageSizes.empty()) {
@@ -98,7 +108,9 @@ BroadcastExchangeSource::requestDataSizes(
       }
     }
 
-    return Response{0, atEnd_, std::move(remainingPageSizes)};
+    VLOG(1) << "BroadcastExchangeSource::requestDataSizes - remainingBytes:" << remainingBytes;
+
+    return Response{0, atEnd_, remainingBytes};
   });
 }
 

@@ -70,14 +70,14 @@ ShuffleExchangeSource::request(
 
 folly::SemiFuture<ShuffleExchangeSource::Response>
 ShuffleExchangeSource::requestDataSizes(std::chrono::microseconds /*maxWait*/) {
-  std::vector<int64_t> remainingBytes;
+  int64_t remainingBytes;
   if (!atEnd_) {
     // Use default value of ExchangeClient::getAveragePageSize() for now.
     //
     // TODO: Change ShuffleReader to return the next batch size.
-    remainingBytes.push_back(1 << 20);
+    remainingBytes = (1 << 20);
   }
-  return folly::makeSemiFuture(Response{0, atEnd_, std::move(remainingBytes)});
+  return folly::makeSemiFuture(Response{0, atEnd_, remainingBytes});
 }
 
 bool ShuffleExchangeSource::supportsMetrics() const {

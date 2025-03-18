@@ -568,21 +568,14 @@ class PrestoExchangeSourceTest : public ::testing::TestWithParam<Params> {
   void requestDataSize(
       const std::shared_ptr<exec::ExchangeQueue>& queue,
       const std::shared_ptr<exec::ExchangeSource>& exchangeSource,
-      uint64_t& remainingBytes,
-      bool& atEnd) {
+      uint64_t& remainingBytes) {
     {
       std::lock_guard<std::mutex> l(queue->mutex());
       VELOX_CHECK(exchangeSource->shouldRequestLocked());
     }
     const auto response =
         exchangeSource->requestDataSizes(std::chrono::seconds(2)).get();
-    remainingBytes = 0;
-
-    atEnd = false;
-    for (auto bytes : response.remainingBytes) {
-      remainingBytes += bytes;
-    }
-    atEnd = response.atEnd;
+    remainingBytes = response.remainingBytes;
   }
 
   std::shared_ptr<memory::MemoryPool> pool_;
@@ -671,10 +664,8 @@ TEST_P(PrestoExchangeSourceTest, getDataSize) {
   // Get data size before fetch any data.
   ASSERT_EQ(sourceHelper.sequence(), 0);
   uint64_t remainingBytes;
-  bool atEnd;
-  requestDataSize(queue, exchangeSource, remainingBytes, atEnd);
+  requestDataSize(queue, exchangeSource, remainingBytes);
   ASSERT_EQ(remainingBytes, pages[0].size() + pages[1].size());
-  ASSERT_FALSE(atEnd);
   ASSERT_EQ(sourceHelper.sequence(), 0);
 
   // Get first page size.
@@ -682,9 +673,8 @@ TEST_P(PrestoExchangeSourceTest, getDataSize) {
   waitForNextPage(queue);
 
   ASSERT_EQ(sourceHelper.sequence(), 1);
-  requestDataSize(queue, exchangeSource, remainingBytes, atEnd);
+  requestDataSize(queue, exchangeSource, remainingBytes);
   ASSERT_EQ(remainingBytes, pages[1].size());
-  ASSERT_FALSE(atEnd);
   ASSERT_EQ(sourceHelper.sequence(), 1);
 
   // Get second page size.
@@ -693,10 +683,9 @@ TEST_P(PrestoExchangeSourceTest, getDataSize) {
   ASSERT_EQ(sourceHelper.sequence(), 2);
   ASSERT_FALSE(sourceHelper.atEnd());
 
-  requestDataSize(queue, exchangeSource, remainingBytes, atEnd);
+  requestDataSize(queue, exchangeSource, remainingBytes);
   ASSERT_EQ(remainingBytes, 0);
 
-  ASSERT_TRUE(atEnd);
   ASSERT_EQ(sourceHelper.sequence(), 2);
 
   waitForEndMarker(queue);
@@ -732,10 +721,8 @@ TEST_P(PrestoExchangeSourceTest, invalidDataResponseWithoutTokenSet) {
   // Get data size before fetch any data.
   ASSERT_EQ(sourceHelper.sequence(), 0);
   uint64_t remainingBytes;
-  bool atEnd;
-  requestDataSize(queue, exchangeSource, remainingBytes, atEnd);
+  requestDataSize(queue, exchangeSource, remainingBytes);
   ASSERT_EQ(remainingBytes, pages[0].size() + pages[1].size());
-  ASSERT_FALSE(atEnd);
   ASSERT_EQ(sourceHelper.sequence(), 0);
 
   requestNextPage(queue, exchangeSource, 10);

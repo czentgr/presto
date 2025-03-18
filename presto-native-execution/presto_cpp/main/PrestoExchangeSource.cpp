@@ -178,6 +178,9 @@ void PrestoExchangeSource::doRequest(
   }
 
   auto path = fmt::format("{}/{}", basePath_, sequence_);
+  VLOG(1) << "Fetching data from " << host_ << ":" << port_ << " " << path
+  << " maxBytes: " << maxBytes;
+
   auto self = getSelfPtr();
   proxygen::HTTPMethod method;
   if (maxBytes == 0) {
@@ -307,16 +310,8 @@ void PrestoExchangeSource::processDataResponse(
             << sequence_;
   }
 
-  std::vector<int64_t> remainingBytes;
-  auto remainingBytesString = headers->getHeaders().getSingleOrEmpty(
-      protocol::PRESTO_BUFFER_REMAINING_BYTES_HEADER);
-  if (!remainingBytesString.empty()) {
-    folly::split(',', remainingBytesString, remainingBytes);
-    if (!remainingBytes.empty() && remainingBytes[0] == 0) {
-      VELOX_CHECK_EQ(remainingBytes.size(), 1);
-      remainingBytes.clear();
-    }
-  }
+  int64_t remainingBytes = atol(headers->getHeaders().getSingleOrEmpty(
+    protocol::PRESTO_BUFFER_REMAINING_BYTES_HEADER).c_str());
 
   std::optional<int64_t> ackSequenceOpt;
   const auto nextTokenStr = headers->getHeaders().getSingleOrEmpty(
@@ -331,6 +326,11 @@ void PrestoExchangeSource::processDataResponse(
     VELOX_CHECK_EQ(
         contentLength, 0, "next token is not set in non-empty data response");
   }
+
+  VLOG(1) << "Fetched data from " << basePath_ << "/" << sequence_ << ": "
+          << contentLength << " bytes"
+          << " remainingBytes: " << std::to_string(remainingBytes)
+          << " ackSequence: " << (ackSequenceOpt.has_value() ? std::to_string(ackSequenceOpt.value()) : "unset");
 
   std::unique_ptr<exec::SerializedPageBase> page;
   const bool empty = response->empty();
@@ -412,7 +412,7 @@ void PrestoExchangeSource::processDataResponse(
 
   if (requestPromise.valid() && !requestPromise.isFulfilled()) {
     requestPromise.setValue(
-        Response{pageSize, complete, std::move(remainingBytes)});
+        Response{pageSize, complete, remainingBytes});
   } else {
     // The source must have been closed.
     VELOX_CHECK(closed_.load());
