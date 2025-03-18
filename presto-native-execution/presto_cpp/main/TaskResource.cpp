@@ -54,6 +54,25 @@ std::optional<protocol::Duration> getMaxWait(proxygen::HTTPMessage* message) {
   return protocol::Duration(
       headers.getSingleOrEmpty(protocol::PRESTO_MAX_WAIT_HTTP_HEADER));
 }
+
+std::string to_string(protocol::TaskState state) {
+  switch (state) {
+    case protocol::TaskState::PLANNED:
+      return "PLANNED";
+    case protocol::TaskState::RUNNING:
+      return "RUNNING";
+    case protocol::TaskState::FINISHED:
+      return "FINISHED";
+    case protocol::TaskState::CANCELED:
+      return "CANCELED";
+    case protocol::TaskState::ABORTED:
+      return "ABORTED";
+    case protocol::TaskState::FAILED:
+      return "FAILED";
+    default:
+      return "UNKNOWN";
+  }
+}
 } // namespace
 
 void TaskResource::registerUris(http::HttpServer& server) {
@@ -135,6 +154,10 @@ proxygen::RequestHandler* TaskResource::abortResults(
     const std::vector<std::string>& pathMatch) {
   protocol::TaskId taskId = pathMatch[1];
   long destination = folly::to<long>(pathMatch[2]);
+
+  VLOG(1) << "Received abortResults request for " << taskId << "/"
+          << destination;
+
   return new http::CallbackRequestHandler(
       [this, taskId, destination](
           proxygen::HTTPMessage* /*message*/,
@@ -169,6 +192,9 @@ proxygen::RequestHandler* TaskResource::acknowledgeResults(
   protocol::TaskId taskId = pathMatch[1];
   long bufferId = folly::to<long>(pathMatch[2]);
   long token = folly::to<long>(pathMatch[3]);
+
+  VLOG(1) << "Received acknowledgeResults request for " << taskId << "/"
+  << bufferId << "/" << token;
 
   return new http::CallbackRequestHandler(
       [this, taskId, bufferId, token](
@@ -213,6 +239,9 @@ proxygen::RequestHandler* TaskResource::createOrUpdateTaskImpl(
         long startProcessCpuTime,
         bool receiveThrift)>& createOrUpdateFunc) {
   protocol::TaskId taskId = pathMatch[1];
+
+  VLOG(1) << "Received createOrUpdateTaskImpl request for " << taskId;
+
   bool summarize = message->hasQueryParam("summarize");
 
   const auto& headers = message->getHeaders();
@@ -412,6 +441,9 @@ proxygen::RequestHandler* TaskResource::deleteTask(
   const auto sendThrift =
       acceptHeader.find(http::kMimeTypeApplicationThrift) != std::string::npos;
 
+  VLOG(1) << "Received deleteTask request for " << taskId
+  << ". abort: " << abort;
+
   return new http::CallbackRequestHandler(
       [this, taskId, abort, summarize, sendThrift](
           proxygen::HTTPMessage* /*message*/,
@@ -481,6 +513,10 @@ proxygen::RequestHandler* TaskResource::getResults(
             : protocol::PRESTO_MAX_SIZE_DEFAULT);
   }
 
+  VLOG(1) << "Received getResults request for " << taskId << "/results/"
+          << bufferId << "/" << token << " maxSize: " << maxSize
+          << " maxWait:" << maxWait;
+
   return new http::CallbackRequestHandler(
       [this, taskId, bufferId, token, maxSize, maxWait](
           proxygen::HTTPMessage* /*message*/,
@@ -527,12 +563,10 @@ proxygen::RequestHandler* TaskResource::getResults(
                             std::to_string(result->nextSequence))
                         .header(
                             protocol::PRESTO_BUFFER_COMPLETE_HEADER,
-                            result->complete ? "true" : "false");
-                    if (!result->remainingBytes.empty()) {
-                      builder.header(
-                          protocol::PRESTO_BUFFER_REMAINING_BYTES_HEADER,
-                          folly::join(',', result->remainingBytes));
-                    }
+                            result->complete ? "true" : "false")
+                        .header(
+                            protocol::PRESTO_BUFFER_REMAINING_BYTES_HEADER,
+                            std::to_string(result->remainingBytes));
                     builder.body(std::move(result->data)).sendWithEOM();
                   })
                   .thenError(
@@ -560,6 +594,13 @@ proxygen::RequestHandler* TaskResource::getTaskStatus(
   protocol::TaskId taskId = pathMatch[1];
   auto currentState = getCurrentState(message);
   auto maxWait = getMaxWait(message);
+
+  VLOG(1) << "Received getTaskStatus request for " << taskId
+  << " currentState: "
+  << (currentState.has_value() ? to_string(currentState.value())
+                               : "null")
+  << " maxWait: "
+  << (maxWait.has_value() ? maxWait.value().toString() : "null");
 
   const auto& headers = message->getHeaders();
   const auto& acceptHeader =
@@ -633,6 +674,14 @@ proxygen::RequestHandler* TaskResource::getTaskInfo(
   auto maxWait = getMaxWait(message);
   bool summarize = message->hasQueryParam("summarize");
 
+  VLOG(1) << "Received getTaskStatus request for " << taskId
+  << " currentState: "
+  << (currentState.has_value() ? to_string(currentState.value())
+                               : "null")
+  << " maxWait: "
+  << (maxWait.has_value() ? maxWait.value().toString() : "null")
+  << " summarize: " << summarize;
+
   const auto& headers = message->getHeaders();
   const auto& acceptHeader =
       headers.getSingleOrEmpty(proxygen::HTTP_HEADER_ACCEPT);
@@ -700,6 +749,9 @@ proxygen::RequestHandler* TaskResource::removeRemoteSource(
     const std::vector<std::string>& pathMatch) {
   protocol::TaskId taskId = pathMatch[1];
   auto remoteId = pathMatch[2];
+
+  VLOG(1) << "Received removeRemoteSource request for " << taskId << "/"
+  << remoteId;
 
   return new http::CallbackRequestHandler(
       [this, taskId, remoteId](
