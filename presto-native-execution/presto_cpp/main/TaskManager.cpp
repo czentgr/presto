@@ -182,7 +182,7 @@ void getData(
           }
         }
 
-        VLOG(1) << "Task " << taskId << ", buffer " << bufferId << ", sequence "
+        VLOG(1) << "TaskManager getData - Task " << taskId << ", buffer " << bufferId << ", sequence "
                 << sequence << " Results size: " << bytes
                 << ", page count: " << pages.size()
                 << ", remaining: " << std::to_string(remainingBytes)
@@ -1099,7 +1099,7 @@ folly::Future<std::unique_ptr<Result>> TaskManager::getResults(
   uint64_t maxWaitMicros =
       std::max(1.0, maxWait.getValue(protocol::TimeUnit::MICROSECONDS));
   VLOG(1) << "TaskManager::getResults task:" << taskId
-          << ", destination:" << destination << ", token:" << token;
+          << ", destination:" << destination << ", token:" << token << ", maxSize: " << maxSize;
 
   try {
     auto prestoTask = findOrCreateTask(taskId);
