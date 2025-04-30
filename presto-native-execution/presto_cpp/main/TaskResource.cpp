@@ -461,7 +461,7 @@ proxygen::RequestHandler* TaskResource::getResults(
             : protocol::PRESTO_MAX_SIZE_DEFAULT);
   }
 
-  VLOG(1) << "Received getResults request for " << taskId << "/results/"
+  VLOG(1) << "TaskResource::getResults - Received getResults request for " << taskId << "/results/"
           << bufferId << "/" << token << " maxSize: " << maxSize
           << " maxWait:" << maxWait;
 
