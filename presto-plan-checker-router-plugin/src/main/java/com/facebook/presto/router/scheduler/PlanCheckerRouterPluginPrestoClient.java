@@ -21,7 +21,6 @@ import com.facebook.presto.sql.parser.SqlParserOptions;
 import com.google.common.collect.ImmutableMap;
 import io.airlift.units.Duration;
 import okhttp3.OkHttpClient;
-
 import java.net.URI;
 import java.security.Principal;
 import java.util.List;
