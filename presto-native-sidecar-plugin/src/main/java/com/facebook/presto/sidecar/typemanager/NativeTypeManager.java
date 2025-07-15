@@ -95,7 +95,6 @@ public class NativeTypeManager
                     IPPREFIX,
                     INTERVAL_DAY_TO_SECOND,
                     INTERVAL_YEAR_TO_MONTH,
-                    VARCHAR,
                     UNKNOWN);
 
     private static final Set<String> NATIVE_ENGINE_SUPPORTED_PARAMETRIC_TYPES =
@@ -106,6 +105,7 @@ public class NativeTypeManager
                     QDIGEST,
                     ROW,
                     TDIGEST,
+		    VARCHAR,
                     FunctionType.NAME);
 
     private final TypeManager typeManager;
@@ -131,10 +131,6 @@ public class NativeTypeManager
     @Override
     public Type getType(TypeSignature typeSignature)
     {
-        // Todo: Fix this hack, native execution does not support parameterized varchar type signatures.
-        if (typeSignature.getBase().equals(VARCHAR)) {
-            typeSignature = createUnboundedVarcharType().getTypeSignature();
-        }
         Type type = types.get(typeSignature);
         if (type != null) {
             return type;
