@@ -211,6 +211,7 @@ void PrometheusStatsReporter::addHistogramMetricValue(
     const char* key,
     size_t value) const {
   executor_->add([this, key = std::string(key), value]() {
+    VLOG(0) << "Collecting: " << key << " Value: " << value;
     auto metricIterator = registeredMetricsMap_.find(key);
     if (metricIterator == registeredMetricsMap_.end()) {
       VLOG(1) << "addMetricValue for unregistered metric " << key;

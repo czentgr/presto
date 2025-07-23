@@ -15,7 +15,7 @@ ARG BASE_IMAGE=quay.io/centos/centos:stream9
 FROM ${DEPENDENCY_IMAGE} as prestissimo-image
 
 ARG OSNAME=centos
-ARG BUILD_TYPE=Release
+ARG BUILD_TYPE=Debug
 ARG EXTRA_CMAKE_FLAGS=''
 ARG NUM_THREADS=8
 ARG CUDA_ARCHITECTURES=70
@@ -27,7 +27,7 @@ ENV BUILD_DIR=""
 RUN mkdir -p /prestissimo /runtime-libraries
 COPY . /prestissimo/
 RUN EXTRA_CMAKE_FLAGS=${EXTRA_CMAKE_FLAGS} \
-    NUM_THREADS=${NUM_THREADS} make --directory="/prestissimo/" cmake-and-build BUILD_TYPE=${BUILD_TYPE} BUILD_DIR=${BUILD_DIR} BUILD_BASE_DIR=${BUILD_BASE_DIR}
+    NUM_THREADS=${NUM_THREADS} make --directory="/prestissimo/" cmake-and-build BUILD_TYPE=Debug BUILD_DIR=${BUILD_DIR} BUILD_BASE_DIR=${BUILD_BASE_DIR}
 RUN !(LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64 ldd /prestissimo/${BUILD_BASE_DIR}/${BUILD_DIR}/presto_cpp/main/presto_server  | grep "not found") && \
     LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64 ldd /prestissimo/${BUILD_BASE_DIR}/${BUILD_DIR}/presto_cpp/main/presto_server | awk 'NF == 4 { system("cp " $3 " /runtime-libraries") }'
 
