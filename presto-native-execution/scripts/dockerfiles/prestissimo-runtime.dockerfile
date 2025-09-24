@@ -26,6 +26,18 @@ ENV BUILD_DIR=""
 
 RUN mkdir -p /prestissimo /runtime-libraries
 COPY . /prestissimo/
+
+RUN rm -rf /deps-download
+RUN rm -rf /usr/local/include/aws
+RUN rm -rf /usr/local/include/s2n*
+RUN rm -rf /usr/local/lib64/aws*
+RUN rm -rf /usr/local/lib64/libs2n.a
+RUN rm -rf /usr/local/lib64/s2n
+RUN rm -rf /usr/local/lib64/cmake/aws*
+RUN rm -rf /usr/local/lib64/cmake/Aws*
+RUN rm -rf /usr/local/lib64/cmake/AWS*
+
+RUN /prestissimo/scripts/setup-aws.sh
 RUN --mount=type=cache,target=/root/.ccache,sharing=locked \
     EXTRA_CMAKE_FLAGS=${EXTRA_CMAKE_FLAGS} \
     NUM_THREADS=${NUM_THREADS} make --directory="/prestissimo/" cmake-and-build BUILD_TYPE=${BUILD_TYPE} BUILD_DIR=${BUILD_DIR} BUILD_BASE_DIR=${BUILD_BASE_DIR} && \
