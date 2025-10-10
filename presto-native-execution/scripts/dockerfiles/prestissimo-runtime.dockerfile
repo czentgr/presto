@@ -39,6 +39,10 @@ RUN !(LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/lib:/usr/local/lib64 ldd /pr
 
 FROM ${BASE_IMAGE}
 
+RUN rpm --import https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/7fa2af80.pub && \
+    dnf config-manager --add-repo "https://developer.download.nvidia.com/devtools/repos/rhel$(source /etc/os-release; echo ${VERSION_ID%%.*})/$(rpm --eval '%{_arch}' | sed s/aarch/arm/)/" && \
+    dnf install -y nsight-systems-cli-2025.5.1.121
+
 ENV BUILD_BASE_DIR=_build
 ENV BUILD_DIR=""
 

@@ -11,4 +11,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-GLOG_logtostderr=1 presto_server --etc-dir=/opt/presto-server/etc
+set -e
+mkdir /presto_profiles
+if [[ -z $PROFILE_ARGS ]]; then
+PROFILE_ARGS="-t nvtx"
+fi
+PROFILE_CMD="nsys launch $PROFILE_ARGS"
+
+ldconfig
+
+GLOG_logtostderr=1 $PROFILE_CMD presto_server --etc-dir=/opt/presto-server/etc
