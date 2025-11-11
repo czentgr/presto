@@ -47,5 +47,6 @@ COPY --chmod=0775 --from=prestissimo-image /runtime-libraries/* /usr/lib64/prest
 COPY --chmod=0755 ./etc /opt/presto-server/etc
 COPY --chmod=0775 ./entrypoint.sh /opt/entrypoint.sh
 RUN echo "/usr/lib64/prestissimo-libs" > /etc/ld.so.conf.d/prestissimo.conf && ldconfig
+RUN dnf install -y gdb
 
 ENTRYPOINT ["/opt/entrypoint.sh"]

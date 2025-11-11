@@ -11,4 +11,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-GLOG_logtostderr=1 presto_server --etc-dir=/opt/presto-server/etc
+GLOG_logtostderr=1 presto_server --etc-dir=/opt/presto-server/etc --v=3
