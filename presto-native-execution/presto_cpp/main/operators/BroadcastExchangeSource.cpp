@@ -98,7 +98,7 @@ BroadcastExchangeSource::requestDataSizes(
     }
 
     // If the source is empty from the start, signal completion to ExchangeQueue
-    if (remainingBytes == 0) {
+    if (remainingPageSizes.empty()) {
       atEnd_ = true;
       std::vector<velox::ContinuePromise> promises;
       {
