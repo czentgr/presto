@@ -403,6 +403,8 @@ void PrestoExchangeSource::processDataResponse(
   }
 
   if (requestPromise.valid() && !requestPromise.isFulfilled()) {
+    VLOG(1) << "PrestoExchangeSource::processDataResponse - creating promise - pageSize: " << pageSize << 
+               " | complete: " << complete << " | remainingBytes: " << remainingBytes;
     requestPromise.setValue(
         Response{pageSize, complete, remainingBytes});
   } else {
