@@ -28,6 +28,7 @@ COPY velox/scripts /velox/scripts
 # from https://github.com/facebookincubator/velox/pull/14016
 COPY velox/CMake/resolve_dependency_modules/arrow/cmake-compatibility.patch /velox
 ENV VELOX_ARROW_CMAKE_PATCH=/velox/cmake-compatibility.patch
+RUN dnf install epel-release -y && dnf config-manager --set-enabled crb && dnf update -y && dnf install libunwind-devel -y
 RUN bash -c "mkdir build && \
     (cd build && ../scripts/setup-centos.sh && \
                  ../scripts/setup-adapters.sh && \
@@ -37,6 +38,7 @@ RUN bash -c "mkdir build && \
                  install_clang15 && \
                  install_cuda 12.8) && \
     rm -rf build"
+RUN dnf clean all
 
 # put CUDA binaries on the PATH
 ENV PATH=/usr/local/cuda/bin:${PATH}
