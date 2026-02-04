@@ -156,7 +156,7 @@ public class TypeCoercer
                     case StandardTypes.JSON:
                     case StandardTypes.INTERVAL_YEAR_TO_MONTH:
                     case StandardTypes.INTERVAL_DAY_TO_SECOND:
-                    case KHyperLogLogType.NAME:
+                    case StandardTypes.K_HYPER_LOG_LOG:
                     case JoniRegexpType.NAME:
                     case LikePatternType.NAME:
                     case JsonPathType.NAME:
