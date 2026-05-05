@@ -59,9 +59,9 @@
       "functionKind": "SCALAR",
       "isRpcFunction": false,
       "longVariableConstraints": [],
-      "outputType": "map(varchar,integer)",
+      "outputType": "map(varchar(i10),integer)",
       "paramTypes": [
-        "array(varchar)"
+        "array(varchar(i10))"
       ],
       "routineCharacteristics": {
         "determinism": "DETERMINISTIC",
