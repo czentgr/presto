@@ -6,7 +6,7 @@
 # You may obtain a copy of the License at
 #
 #     http://www.apache.org/licenses/LICENSE-2.0
-#
+#the l
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -20,6 +20,7 @@ set -eufx -o pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/../velox/scripts/setup-ubuntu.sh"
 SUDO="${SUDO:-"sudo --preserve-env"}"
 DATASKETCHES_VERSION="5.2.0"
+JEMALLOC_VERSION="5.3.1"
 
 function install_proxygen {
   # proxygen requires python, gperf, and libc-ares-dev
@@ -34,9 +35,24 @@ function install_datasketches {
   cmake_install_dir datasketches-cpp -DBUILD_TESTS=OFF
 }
 
+function install_jemalloc {
+  wget_and_untar https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOC_VERSION}.tar.gz jemalloc
+  (
+    cd "${DEPENDENCY_DIR}"/jemalloc || exit
+    ./autogen.sh --enable-prof --with-version="${JEMALLOC_VERSION}-0-g0000000000000000000000000000000000000000" &&
+      make &&
+      make install
+  )
+}
+
 function install_presto_deps {
   run_and_time install_proxygen
   run_and_time install_datasketches
+}
+
+function install_build_prereqs {
+  run_and_time install_apt_deps
+  run_and_time install_jemalloc
 }
 
 if [[ $# -ne 0 ]]; then
@@ -51,6 +67,7 @@ else
   else
     echo "Skipping installation of build dependencies since INSTALL_PREREQUISITES is not set"
   fi
+  install_build_prereqs
   install_velox_deps
   install_presto_deps
   echo "All dependencies for Prestissimo installed!"

@@ -61,6 +61,7 @@ target_link_libraries(
   GTest::gmock
   GTest::gtest
   GTest::gtest_main
+  "${JEMALLOC_LINK_LIBRARIES}"
 )
 
 # Clang requires explicit linking with libatomic.

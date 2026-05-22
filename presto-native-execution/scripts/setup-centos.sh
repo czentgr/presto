@@ -17,6 +17,7 @@ set -x
 export CC=/opt/rh/gcc-toolset-12/root/bin/gcc
 export CXX=/opt/rh/gcc-toolset-12/root/bin/g++
 
+JEMALLOC_VERSION="5.3.1"
 GPERF_VERSION="3.1"
 DATASKETCHES_VERSION="5.2.0"
 
@@ -33,7 +34,7 @@ export NPROC=${NPROC:-$(getconf _NPROCESSORS_ONLN)}
 
 function install_presto_deps_from_package_managers {
   # proxygen requires c-ares-devel
-  dnf install -y maven java clang-tools-extra jq perl-XML-XPath c-ares-devel
+  dnf install -y maven java clang-tools-extra jq perl-XML-XPath c-ares-devel pkgconfig
   # This python version is installed by the Velox setup scripts
   pip install regex pyyaml chevron black ptsd-jbroll
 }
@@ -63,11 +64,27 @@ function install_datasketches {
   cmake_install_dir datasketches-cpp -DBUILD_TESTS=OFF
 }
 
+function install_jemalloc {
+  wget_and_untar https://github.com/jemalloc/jemalloc/archive/refs/tags/${JEMALLOC_VERSION}.tar.gz jemalloc
+  (
+    cd "${DEPENDENCY_DIR}"/jemalloc || exit
+    ./autogen.sh --enable-prof --with-version="${JEMALLOC_VERSION}-0-g0000000000000000000000000000000000000000" &&
+      make &&
+      make install
+  )
+}
+
 function install_presto_deps {
-  run_and_time install_presto_deps_from_package_managers
+  run_and_time install_jemalloc
   run_and_time install_gperf
   run_and_time install_proxygen
   run_and_time install_datasketches
+}
+
+function install_build_prereqs {
+  run_and_time install_velox_deps_from_dnf
+  run_and_time install_presto_deps_from_package_managers
+  run_and_time install_jemalloc
 }
 
 if [[ $# -ne 0 ]]; then
@@ -88,6 +105,7 @@ else
   # Activate gcc12; enable errors on unset variables afterwards.
   source /opt/rh/gcc-toolset-12/enable || exit 1
   set -u
+  install_build_prereqs
   install_velox_deps
   install_presto_deps
   echo "All dependencies for Prestissimo installed!"

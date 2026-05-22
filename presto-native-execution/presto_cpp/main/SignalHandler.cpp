@@ -13,6 +13,7 @@
  */
 #include "presto_cpp/main/SignalHandler.h"
 #include <folly/io/async/EventBaseManager.h>
+#include <jemalloc/jemalloc.h>
 #include <csignal>
 #include "presto_cpp/main/PrestoServer.h"
 #include "presto_cpp/main/common/Utils.h"
@@ -28,6 +29,13 @@ SignalHandler::SignalHandler(PrestoServer* prestoServer)
 
 void SignalHandler::signalReceived(int signum) noexcept {
   PRESTO_SHUTDOWN_LOG(INFO) << "Received signal " << signum;
+  if (VLOG_IS_ON(1)) {
+#ifdef __linux__
+    malloc_stats_print(NULL, NULL, "axe");
+#else
+    je_malloc_stats_print(NULL, NULL, "axe");
+#endif
+  }
   prestoServer_->stop();
 }
 
