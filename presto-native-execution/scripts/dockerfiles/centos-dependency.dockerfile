@@ -33,6 +33,7 @@ COPY velox/scripts /velox/scripts
 # from https://github.com/facebookincubator/velox/pull/14016
 COPY velox/CMake/resolve_dependency_modules/arrow/cmake-compatibility.patch /velox
 ENV VELOX_ARROW_CMAKE_PATCH=/velox/cmake-compatibility.patch
+RUN echo -e "/usr/local/lib\n/usr/local/lib64" > /etc/ld.so.conf.d/prestissimo-build.conf && ldconfig
 RUN bash -c "mkdir build && \
     (cd build && ../scripts/setup-centos.sh && \
                  ../scripts/setup-adapters.sh && \
