@@ -34,7 +34,12 @@ COPY velox/scripts /velox/scripts
 COPY velox/CMake/resolve_dependency_modules/arrow/cmake-compatibility.patch /velox
 COPY CMake/arrow/arrow-flight.patch /scripts
 ENV VELOX_ARROW_CMAKE_PATCH=/velox/cmake-compatibility.patch
+COPY velox/CMake/resolve_dependency_modules/arrow/arrow-testing-boost.patch /velox
 ENV EXTRA_ARROW_PATCH=/scripts/arrow-flight.patch
+COPY velox/CMake/resolve_dependency_modules/fbthrift/compactv1-protocol-refiller.patch /velox
+ENV VELOX_ARROW_CMAKE_PATCH="/velox/cmake-compatibility.patch /velox/arrow-testing-boost.patch"
+ENV VELOX_FBTHRIFT_CMAKE_PATCH=/velox/compactv1-protocol-refiller.patch
+
 RUN bash -c "mkdir build && \
     (cd build && ../scripts/setup-centos.sh && \
                  ../scripts/setup-adapters.sh && \
