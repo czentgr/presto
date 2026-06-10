@@ -72,6 +72,7 @@ target_link_libraries(
   velox_caching
   velox_common_base
   velox_core
+  velox_custom_memory_resource_registry
   velox_dwio_common_exception
   velox_dwio_dwrf_reader
   velox_dwio_dwrf_writer
