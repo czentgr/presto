@@ -43,10 +43,10 @@
       "functionKind": "SCALAR",
       "isRpcFunction": false,
       "longVariableConstraints": [],
-      "outputType": "varchar",
+      "outputType": "varchar(i10)",
       "paramTypes": [
-        "varchar",
-        "varchar"
+        "varchar(i10)",
+        "varchar(i11)"
       ],
       "routineCharacteristics": {
         "determinism": "DETERMINISTIC",
