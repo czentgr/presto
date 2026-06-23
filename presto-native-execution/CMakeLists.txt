@@ -195,13 +195,13 @@ find_package(OpenSSL REQUIRED)
 
 find_package(Sodium REQUIRED)
 find_library(PROXYGEN proxygen)
-find_library(PROXYGEN_HTTP_SERVER proxygenhttpserver)
+find_library(PROXYGEN_HTTP_SERVER proxygen_httpserver)
 find_library(FIZZ fizz)
 find_library(WANGLE wangle)
 find_library(MVFST_EXCEPTION mvfst_exception)
 find_library(MVFST_FOLLY_UTILS mvfst_folly_utils)
 find_library(MVFST_CODEC_TYPES mvfst_codec_types)
-find_library(MVFST_CONTIGUOUS_CURSOR mvfst_contiguous_cursor)
+find_library(MVFST_CONTIGUOUS_CURSOR mvfst_common_contiguous_cursor)
 
 find_library(RE2 re2)
 
