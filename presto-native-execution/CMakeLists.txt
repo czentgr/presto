@@ -195,6 +195,7 @@ find_package(OpenSSL REQUIRED)
 
 find_package(Sodium REQUIRED)
 find_library(PROXYGEN proxygen)
+find_library(PROXYGEN_HTTPSERVER proxygen_httpserver)
 find_library(FIZZ fizz)
 find_library(WANGLE wangle)
 find_library(MVFST_EXCEPTION mvfst_exception)
@@ -211,6 +212,7 @@ include_directories(SYSTEM ${FBTHRIFT_INCLUDE_DIR})
 
 set(
   PROXYGEN_LIBRARIES
+  ${PROXYGEN_HTTPSERVER}
   ${PROXYGEN}
   ${WANGLE}
   ${FIZZ}
